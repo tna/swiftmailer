@@ -144,11 +144,6 @@ class Swift_FileSpool extends Swift_ConfigurableSpool
    */
   public function flushQueue(Swift_Transport $transport, &$failedRecipients = null)
   {
-    if (!$transport->isStarted())
-    {
-      $transport->start();
-    }
-
     $failedRecipients = (array) $failedRecipients;
     $count = 0;
     $time = time();
@@ -165,6 +160,11 @@ class Swift_FileSpool extends Swift_ConfigurableSpool
       if (rename($file, $file.'.sending')) 
       {
         $message = unserialize(file_get_contents($file.'.sending'));
+
+        if (!$transport->isStarted())
+        {
+          $transport->start();
+        }
 
         $count += $transport->send($message, $failedRecipients);
 
